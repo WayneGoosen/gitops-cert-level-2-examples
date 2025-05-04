@@ -9,21 +9,27 @@ spec:
         generators:
           # git generator, 'child' #1
           - git:
-              repoURL: https://github.com/argoproj/argo-cd.git
+              repoURL: https://github.com/waynegoosen/gitops-cert-level-2-examples.git
               revision: HEAD
               directories:
-                - path: applicationset/examples/matrix/cluster-addons/*
+                - path: application-sets/example-apps/*
           # cluster generator, 'child' #2
           - clusters: {} # Automatically use all clusters defined within Argo CD
   template:
     metadata:
       name: '{{path.basename}}-{{name}}'
     spec:
-      project: '{{metadata.labels.environment}}'
+      project: 'default'
       source:
-        repoURL: https://github.com/argoproj/argo-cd.git
+        repoURL: https://github.com/waynegoosen/gitops-cert-level-2-examples.git
         targetRevision: HEAD
         path: '{{path}}'
       destination:
         server: '{{server}}'
         namespace: '{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true          # enables deleting resources no longer defined
+          selfHeal: true       # enables self-healing for out-of-sync resources
+        syncOptions:
+          - CreateNamespace=true  # automatically creates namespace if it doesn't exist
